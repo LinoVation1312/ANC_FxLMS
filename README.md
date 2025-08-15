@@ -26,8 +26,8 @@ Real-time Active Noise Control using the Filtered-x LMS algorithm in Python. Des
 - `CALIB/CALIB_MIC.py` – measures mic sensitivities with a 1 kHz calibrator; writes `mic_sensitivity.json`
 - `CALIB/NEW_COEFFS.py` – scales RAW secondary-path B by mic2 sensitivity; writes `filter_coeffs.json`
 - `CALIB/filter_coeffs_RAW.json` – RAW secondary-path IIR to start from (you provide A, B, tau_ms)
-- `MATLAB_IR/IRMeasurer_CODE.m` – records the secondary-path impulse response via swept-sine (Audio Toolbox)
-- `MATLAB_IR/PRONY.m` – fits an IIR model (A,B) + pure delay tau_ms from the measured IR and saves JSON
+- `MATLAB/IRMeasurer_CODE.m` – records the secondary-path impulse response via swept-sine (Audio Toolbox)
+- `MATLAB/PRONY.m` – fits an IIR model (A,B) + pure delay tau_ms from the measured IR and saves JSON
 - `requirements.txt` – Python dependencies
 
 ## Step 1 — Measure the secondary path (MATLAB)
@@ -37,13 +37,14 @@ Use this when you need to generate or refresh `CALIB/filter_coeffs_RAW.json` fro
 Prereqs (MATLAB): Audio Toolbox (sweeptone, audioPlayerRecorder), DSP System Toolbox (dsp.AsyncBuffer), Signal Processing Toolbox.
 
 1) Record IR
-  - Open `MATLAB_IR/IRMeasurer_CODE.m` in MATLAB
+  - Launch ImpulseRespMeasurer via the commande window OR 
+  - Open `MATLAB/IRMeasurer_CODE.m` in MATLAB
   - Set `device` to your audio interface name, verify `fs=8000`, `L`, and channel maps
   - Run the script; it plays a 30–300 Hz sweep and records the response (watch for underrun/overrun)
   - Save the produced measurement `.mat` (contains `measurementData`)
 
 2) Fit IIR (Prony) and export RAW coefficients
-  - Run `MATLAB_IR/PRONY.m`, select the `.mat` file when prompted
+  - Run `MATLAB/PRONY.m`, select the `.mat` file when prompted
   - The script grid-searches stable IIR orders, reports best model, and asks to save JSON
   - Save as `filter_coeffs_RAW.json` (contains `{ "A": [...], "B": [...], "tau_ms": <float> }`)
   - Move/copy it to `CALIB/filter_coeffs_RAW.json`
