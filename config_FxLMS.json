@@ -1,0 +1,47 @@
+{
+  "sample_rate": 8000,
+  "block_size": 32,
+  "L": 256,
+  "mu": 0.00095,
+  "secondary_path": "filter_coeffs.json",
+  "sens_ref": 113.36084581961043,
+  "sens_err": 56.80109406763598,
+  "noise_floor_SPL": 52.0,
+  "bandpass": {
+    "enabled": false,
+    "low_hz": 40.0,
+    "high_hz": 250.0,
+    "order": 9,
+    "window": "hamming",
+    "unit_gain_hz": 145.0,
+  "apply_to": ["reference", "output"],
+  "apply_error": false
+  },
+  "dc_blocker": {
+    "enabled": false,
+  "r": 0.992,
+  "apply_error": false
+  },
+  "lms": {
+    "leakage": 0.0008
+  },
+  "phase": {
+  "extra_output_delay_samples": 0,
+  "extra_output_delay_blocks": 0
+  },
+  "adaptation": {
+    "enabled": true,
+    "clip_limit": 8.0
+  },
+  "init": {
+    "weight_init_std": 0.00000001,
+    "random_seed": 123
+  },
+  "runtime": {
+    "verbose": true,
+    "warning_ratio": 0.85,
+    "monitor_interval_s": 5.0,
+    "debug_every_callbacks": 100
+  }
+  
+}
