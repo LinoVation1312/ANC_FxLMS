@@ -19,7 +19,7 @@ Real-time Active Noise Control using the Filtered-x LMS algorithm in Python. Des
 
 ## Repository layout
 
-- `anc_realtime.py` – CLI entry point; opens the audio stream and runs ANC
+- `anc_realtime.py` – CLI entry point; opens the audio stream and runs ANC - run this code to do ANC
 - `src/anc_processor.py` – FxLMS core (Numba-accelerated) and config loader
 - `config_FxLMS.json` – runtime/configuration (rate, block size, mu, filters, delays, mic sensitivities, etc.)
 - `filter_coeffs.json` – calibrated secondary-path IIR (A, B, tau_ms) used at runtime
