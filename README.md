@@ -13,7 +13,7 @@ Real-time Active Noise Control using the Filtered-x LMS algorithm in Python. Des
   - 1 kHz acoustic calibrator (94 or 114 dB SPL) for mic sensitivity calibration
 
 - Software
-  - Python 3.12 (tested)
+  - Python 3.12 (used for the development)
   - macOS: CoreAudio works with `sounddevice`
   - Dependencies listed in `requirements.txt`
 
