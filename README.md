@@ -122,9 +122,9 @@ python anc_realtime.py
 ## Safety
 
 - Keep output levels modest for initial tests; watch for oscillation/feedback
-- Protect your speakers
+- Protect your speakers (hardware limiter is nice)
 
-## Real-time Python audio — compact checklists
+## Real-time Python audio
 
 Pre-flight (system)
 - [ ] Use a wired 2-in/2-out interface; fix sample rate to your config (e.g., 8 kHz).
