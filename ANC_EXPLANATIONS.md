@@ -37,6 +37,10 @@ Reference Microphone                             Error Microphone
 │  Adaptation     │◄──── │ Model H(z)      │◄────────
 │   Engine        │      │ (IIR Filter)    │ ref_input
 └─────────────────┘      └─────────────────┘
+        ▲                                              
+        │                                               
+        │   error
+
 
 Real-Time Components:
 - ref_input: Live reference microphone signal
