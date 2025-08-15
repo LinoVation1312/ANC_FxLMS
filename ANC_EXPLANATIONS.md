@@ -15,7 +15,7 @@ Reference Microphone                             Error Microphone
         │                                               │
         ▼                                               ▼
 ┌─────────────────┐                              ┌─────────────┐
-│ Audio Device    │        Primary path       +  │ Audio Device│◄─── error_signal
+│ Audio Device    │        Primary path       +  │ Audio Device│───> error_signal
 │ Input Channel 1 │ -------------------------->  │ Input Ch 2  │
 │                 │                              │             │
 └─────────────────┘                              └─────────────┘
@@ -27,23 +27,23 @@ Reference Microphone                             Error Microphone
 │    W(z)         │────► │ Speaker         │───────────┘
 │   256 taps      │      │ + Environment   │
 └─────────────────┘      └─────────────────┘
-        ▲                                               │
-        │                                               │
-        │ Real-time Coefficient Update                  │
-        │ W(k+1) = W(k) - μ_norm * error * x_filt(k)    │
-        │                                               │
-┌─────────────────┐      ┌─────────────────┐           │
-│   FxLMS         │      │ Secondary Path  │
-│  Adaptation     │◄──── │ Model H(z)      │◄─────────┘
+        ▲                                              
+        │                                               
+        │ Real-time Coefficient Update                  
+        │ W(k+1) = W(k) - μ_norm * error * x_filt(k)    
+        │                                               
+┌─────────────────┐      ┌─────────────────┐           
+│   FxLMS         │      │ Secondary Path  │            
+│  Adaptation     │◄──── │ Model H(z)      │◄────────
 │   Engine        │      │ (IIR Filter)    │ ref_input
 └─────────────────┘      └─────────────────┘
 
 Real-Time Components:
 - ref_input: Live reference microphone signal
 - error_signal: Residual error microphone signal (already contains primary + anti-noise result)
-- W(z): Adaptive FIR filter (256 coefficients in current config)
+- W(z): Adaptive FIR filter (256 coefficients @8kHz in current config --> 3.2 ms length)
 - S(z): Secondary path acoustic model (IIR + delay) loaded from `filter_coeffs.json` (fields: B, A, tau_ms)
-- Audio I/O: `sounddevice` stream (full‑duplex, float32, block = 128 samples)
+- Audio I/O: `sounddevice` stream (full‑duplex, float32, block = 32 samples)
 ```
 
 ## Core Components
@@ -52,16 +52,16 @@ Real-Time Components:
 - **Reference Input**: Channel 0
 - **Error Input**: Channel 1
 - **Sample Rate**: 8000 Hz (config: `sample_rate`)
-- **Block Size**: 128 samples (config: `block_size`) → 16.0 ms frame @ 8 kHz
+- **Block Size**: 32 samples (config: `block_size`) → 4.0 ms frame @ 8 kHz
         (Algorithm still updates weights sample-by-sample inside each block.)
 
 ### 2. ANCProcessor
 - **Adaptive Filter Length (L)**: 256 taps (config: `L`)
-- **Step Size (μ)**: 0.015 (config: `mu`)
-- **Leakage**: 0.001 (config: `lms.leakage`) applied as (1 - leakage) * W per sample
-- **Initialization**: Small random weights (Normal σ=1e-3); `reset_state()` zeros them
-- **Band-Pass**: FIR (order 513) 40–250 Hz Hamming (config: `bandpass`) applied to reference and output if enabled
-- **DC Blocker**: 1st-order high-pass (config: `dc_blocker.r` = 0.995) on reference and adaptive output before band-pass
+- **Step Size (μ)**: 0.00015 (config: `mu`)
+- **Leakage**: 0.0008 (config: `lms.leakage`) applied as (1 - leakage) * W per sample
+- **Initialization**: Small random weights (Normal σ=1e-3);
+- **Band-Pass**: IIR 2nd order (LP+HP 1st order) 40–250 Hz applied to reference and error if enabled
+- **DC Blocker** (optionnal): 1st-order high-pass (config: `dc_blocker.r` = 0.995) on reference and adaptive output before band-pass
 - **Coefficient Clipping**: Each W[i] constrained to [-10, +10] for numerical safety
 
 ### 3. Secondary Path Model (S(z))
@@ -75,7 +75,7 @@ Real-Time Components:
 ### Overview
 Residual-error FxLMS operates per incoming audio sample inside each block:
 1. Reference preprocessing: DC blocker → band-pass.
-2. Anti-noise synthesis: y(n) = Σ W[i] * x_ref(n - i) (after preprocessing).
+2. Anti-noise synthesis: y(n) = Σ W[i] * x_ref(n - i).
 3. Output preprocessing: DC blocker (optional) → band-pass (mirrors reference shaping).
 4. Error signal e(n) is already the residual (primary + anti-noise) from the error mic.
 5. Filtered-x path: Reference (after preproc) → S(z)=B/A IIR → pure delay τ → circular buffer.
